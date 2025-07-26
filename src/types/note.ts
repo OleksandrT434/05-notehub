@@ -1,5 +1,5 @@
 export interface Note {
-    id: string;
+    id: number;
     title: string;
     content: string;
     tag: string;
@@ -11,11 +11,4 @@ export interface Note {
     title: string;
     content: string;
     tag: string;
-  }
-  
-  export interface PaginatedNotes {
-    notes: Note[];
-    page: number;
-    perPage: number;
-    totalPages: number;
   }

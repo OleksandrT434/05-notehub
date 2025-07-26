@@ -11,9 +11,14 @@ interface NewNoteData {
 }
 
 const NoteSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  content: Yup.string().required('Content is required'),
-  tag: Yup.string().required('Tag is required'),
+  title: Yup.string()
+      .min(3, 'Title must be at least 3 characters')
+      .max(50, 'Title must be at most 50 characters')
+      .required('Title is required'),
+  content: Yup.string().
+       max(500, 'Content must be at most 500 characters')
+      .optional(),
+  tag: Yup.string().required('Tag is required').oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'])
 });
 
 interface NoteFormProps {
