@@ -7,17 +7,18 @@ interface NoteListProps {
     page: number;
     setPage: React.Dispatch<React.SetStateAction<number>>;
     children?: (totalPages: number) => React.ReactNode;
+    search: string;
   }
   
 
-export default function NoteList({ page, children }: NoteListProps) {
+export default function NoteList({ page, children , search}: NoteListProps) {
     const perPage = 12;
     const queryClient = useQueryClient();
   
-    const { data, isLoading, } = useQuery({
-      queryKey: ['notes', page],
-      queryFn: () => fetchNotes(page, perPage),
-      placeholderData: keepPreviousData
+    const { data, isLoading } = useQuery({
+      queryKey: ['notes', page, search],
+      queryFn: () => fetchNotes(page, perPage, search),
+      placeholderData: keepPreviousData,
     });
   
     const deleteMutation = useMutation({

@@ -13,13 +13,15 @@ const api = axios.create({
   },
 });
 
-export async function fetchNotes(page: number = 1, perPage: number = 12, search?: string): Promise<PaginatedNotes> {
+export async function fetchNotes(page: number = 1, perPage: number = 12, search: string, sortBy?: 'created' | 'updated'): Promise<PaginatedNotes> {
   const params: Record<string, string | number> = { page, perPage };
 
   if (search && search.trim()) {
     params.search = search.trim();
   }
-
+  if (sortBy) {
+    params.sortBy = sortBy;
+  }
   const response = await api.get('/notes', { params });
   return response.data;
 }
