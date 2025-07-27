@@ -4,49 +4,40 @@ import { useState } from 'react';
 import SearchBox from '../SearchBox/SearchBox';
 import Modal from '../Modal/Modal';
 import NoteList from '../NoteList/NoteList';
-import { useQuery, useMutation , keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { fetchNotes, deleteNote } from '../../services/noteService';
+import { useQuery, keepPreviousData} from '@tanstack/react-query';
+import { fetchNotes} from '../../services/noteService';
 import NoteForm from '../NoteForm/NoteForm';
 import type { Note } from '../../types/note';
-
 
 interface PaginatedNotes {
   notes: Note[];
   totalPages: number;
 }
 
-
 import { useDebouncedCallback } from 'use-debounce';
-
 
 export default function App() {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [debouncedValue, setDebouncedValue] = useState('');
 
-  const queryClient = useQueryClient();
-
-  const debouncedSearch = useDebouncedCallback((value: string) => {
-    setInputValue(value);
-    setPage(1);
-  }, 500);
+  const debounced = useDebouncedCallback((value: string) => {
+    setDebouncedValue(value);
+    setPage(1);;
+  }, 500)
+  const handleSearch = (newInputSearch: string) => {
+    setInputValue(newInputSearch);
+    debounced(newInputSearch);
+  }
+  
 
   const { data, isLoading } = useQuery<PaginatedNotes>({
-    queryKey: ['notes', page, inputValue],
-    queryFn: () => fetchNotes(page, 12, inputValue),
+    queryKey: ['notes', page, debouncedValue],
+    queryFn: () => fetchNotes(page, 12, debouncedValue),
     placeholderData: keepPreviousData
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote, 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
-  
-  const handleDelete = (id: number) => {
-    deleteMutation.mutate(id);
-  };
 
   const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -56,7 +47,7 @@ export default function App() {
     return (
       <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={inputValue} onSearch={debouncedSearch} />
+          <SearchBox value={inputValue} onSearch={handleSearch} />
         <button className={css.button} onClick={() => {setIsModalOpen(true)}}>
         Create note +
         </button>
@@ -75,7 +66,7 @@ export default function App() {
               totalPages={totalPages}
               onPageChange={setPage}
               />
-            )} <NoteList notes={notes} onDelete={handleDelete} />
+            )} <NoteList notes={notes}/>
           </>
         )}
         {isModalOpen && (
